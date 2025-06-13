@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide to AI Prompt Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The SPA uses a tabbed dashboard structure to provide a non-linear, user-driven learning path. Key report sections are mapped to main navigation tabs (Principles, Components, Camera, Styles, etc.), allowing users to easily access specific topics. This is more effective than a long scrolling document because it breaks down dense information into manageable, thematic modules, making it an ideal reference tool. Interactions include clickable cards to reveal details (replacing static tables), filterable galleries for styles and materials, and a radar chart to visually synthesize the concept of a balanced prompt. A new 'Prompt Lab' tab is added, featuring a text input, button, and output area for an LLM-powered prompt generation tool, now enhanced with prompt grading for both user input and generated output. New radio buttons are added to the Prompt Lab for selecting target AI image models, influencing the generated prompt's style. -->
+    <!-- Visualization & Content Choices: The application transforms the report's textual data into an interactive experience. Goal: Organize/Inform. Method: The core structure uses tabs and content sections. Static tables from the report (e.g., Shot Types, Angles, Styles) are converted into interactive HTML/Tailwind-styled cards, improving engagement and readability. Goal: Synthesize. Method: A Radar Chart (using Chart.js) visualizes the abstract concept of a 'balanced prompt', plotting axes for Clarity, Style, Composition, etc., providing a unique "wow" factor and teaching tool. Goal: Interact/Learn. Method: Filterable card galleries for Styles and Materials allow users to actively explore options. A new LLM-powered Prompt Generator (using Gemini API) is added under a dedicated tab, demonstrating prompt expansion based on user input. This feature now includes a new grading functionality, also powered by the Gemini API, that evaluates both the user's original prompt and the generated enhanced prompt, providing numerical grades and textual analysis, directly applying the guide's principles for immediate feedback. Crucially, a new model selection feature (radio buttons) in the Prompt Lab allows users to specify the target AI image generation model, dynamically influencing the prompt generation logic via the LLM. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { 
+            border-color: #0d9488; /* teal-600 */
+            color: #0d9488;
+            font-weight: 600;
+        }
+        .content-section { display: none; }
+        .content-active { display: block; }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 80vw;
+            max-height: 450px;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-5xl font-bold text-teal-700 mb-2">The Prompt Engineer's Guide</h1>
+            <p class="text-lg text-gray-600">An interactive guide to mastering AI image generation.</p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center border-b-2 border-gray-200 mb-8 text-sm md:text-base">
+            <button class="tab-button py-3 px-4 border-b-2 border-transparent hover:border-teal-500 hover:text-teal-600 transition-colors duration-300 tab-active" data-tab="principles">Principles</button>
+            <button class="tab-button py-3 px-4 border-b-2 border-transparent hover:border-teal-500 hover:text-teal-600 transition-colors duration-300" data-tab="components">Components</button>
+            <button class="tab-button py-3 px-4 border-b-2 border-transparent hover:border-teal-500 hover:text-teal-600 transition-colors duration-300" data-tab="camera">📷 Camera</button>
+            <button class="tab-button py-3 px-4 border-b-2 border-transparent hover:border-teal-500 hover:text-teal-600 transition-colors duration-300" data-tab="styles">🎨 Styles</button>
+            <button class="tab-button py-3 px-4 border-b-2 border-transparent hover:border-teal-500 hover:text-teal-600 transition-colors duration-300" data-tab="materials">🧱 Materials</button>
+            <button class="tab-button py-3 px-4 border-b-2 border-transparent hover:border-teal-500 hover:text-teal-600 transition-colors duration-300" data-tab="advanced">Advanced</button>
+            <button class="tab-button py-3 px-4 border-b-2 border-transparent hover:border-teal-500 hover:text-teal-600 transition-colors duration-300" data-tab="prompt-lab">✨ Prompt Lab</button>
+        </nav>
+
+        <main>
+            <!-- Principles Section -->
+            <section id="principles" class="content-section content-active">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <h3 class="text-xl font-bold text-teal-700 mb-3">Introduction: The Art and Science of Prompting</h3>
+                        <p class="text-gray-700 leading-relaxed">This section covers the core philosophy behind effective prompt engineering. Mastering these foundational principles is the first step toward moving beyond generic outputs to create truly optimized, high-quality AI images. A good prompt is a detailed blueprint that guides the AI, turning your imagination into reality.</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h4 class="text-lg font-semibold mb-2">Clarity & Specificity: The "Goldilocks Zone"</h4>
+                            <p class="text-gray-600">Avoid being too vague or overly detailed. A prompt like <code class="bg-gray-100 p-1 rounded">a beautiful landscape</code> is too broad, while a 100-word prompt with conflicting details can confuse the AI. Find the right balance to provide clear direction without stifling creativity.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                             <h4 class="text-lg font-semibold mb-2">Context & Detail</h4>
+                             <p class="text-gray-600">The more relevant details you provide about the subject, environment, lighting, and mood, the better the AI can realize your vision. Prioritize the most important elements by placing them at the start of your prompt.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h4 class="text-lg font-semibold mb-2">Iterative Refinement</h4>
+                            <p class="text-gray-600">Your first prompt is rarely your last. Treat prompting as a conversation. Analyze the AI's output, identify what did and didn't work, and refine your prompt. Experimentation is key to mastery.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h4 class="text-lg font-semibold mb-2">Visualizing a Balanced Prompt</h4>
+                            <p class="text-gray-600">A great prompt balances several key aspects. This chart represents an idealized prompt where each component is well-defined, leading to a cohesive and high-quality image.</p>
+                        </div>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-sm mt-6">
+                        <div class="chart-container">
+                            <canvas id="promptBalanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Components Section -->
+            <section id="components" class="content-section">
+                <div class="max-w-4xl mx-auto">
+                     <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <h3 class="text-xl font-bold text-teal-700 mb-3">Deconstructing the Prompt: Essential Components</h3>
+                        <p class="text-gray-700 leading-relaxed">An effective prompt is built from several key components that work together to create a holistic scene. Think like a film director setting up a shot. This section breaks down the essential building blocks you should consider for every image you create, from the central subject to the mood-setting light.</p>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h4 class="text-lg font-semibold mb-2">1. Subject: The Core of Your Vision</h4>
+                            <p class="text-gray-600">Define your central focus. Be specific with physical descriptions, actions, and emotions. Use concrete nouns and descriptive adjectives. <br><b>Example:</b> <code class="bg-gray-100 p-1 rounded">A mid-30s woman with shoulder-length auburn hair, laughing</code> is better than <code class="bg-gray-100 p-1 rounded">a woman</code>.</p>
+                        </div>
+                         <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h4 class="text-lg font-semibold mb-2">2. Environment & Setting: Crafting the Scene</h4>
+                            <p class="text-gray-600">Ground your subject in a specific context. Describe the location, time of day, and weather. Think in layers: foreground, midground, and background.<br><b>Example:</b> <code class="bg-gray-100 p-1 rounded">in a misty bamboo forest at dawn</code> sets a much clearer scene than <code class="bg-gray-100 p-1 rounded">outdoors</code>.</p>
+                        </div>
+                         <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h4 class="text-lg font-semibold mb-2">3. Lighting & Mood: Shaping Atmosphere</h4>
+                            <p class="text-gray-600">Lighting is critical for mood and realism. Specify the source, quality, and direction of light. Use mood-setting adjectives to convey the desired emotion.<br><b>Example:</b> <code class="bg-gray-100 p-1 rounded">warm golden hour light, serene, ethereal</code> creates a powerful atmosphere.</p>
+                        </div>
+                         <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h4 class="text-lg font-semibold mb-2">4. Composition: Guiding the Eye</h4>
+                            <p class="text-gray-600">Direct the visual narrative. Specify the aspect ratio (e.g., 16:9 for cinematic, 1:1 for portraits) and compositional rules.<br><b>Example:</b> <code class="bg-gray-100 p-1 rounded">rule of thirds, symmetrical composition, shallow depth of field</code>.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Camera Section -->
+            <section id="camera" class="content-section">
+                <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                    <h3 class="text-xl font-bold text-teal-700 mb-3">Mastering Camera Settings</h3>
+                    <p class="text-gray-700 leading-relaxed">To achieve photorealistic results, you need to "speak the AI's language" by using camera-specific terminology. Thinking like a photographer gives you precise control over framing, perspective, and aesthetic quality. Explore the categories below to learn how to direct the AI as you would a real camera.</p>
+                </div>
+
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-2xl font-semibold mb-4 text-center">Shot Types (Proximity)</h4>
+                        <div class="card-grid">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Extreme Close-Up (ECU)</h5>
+                                <p class="text-sm text-gray-600">Focuses on a small detail to create intrigue or show emotion.</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Close-Up (CU)</h5>
+                                <p class="text-sm text-gray-600">Frames the subject's face to capture nuanced expressions.</p>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Medium Shot (MS)</h5>
+                                <p class="text-sm text-gray-600">Frames from the waist up, balancing subject and environment.</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Full Shot (FS)</h5>
+                                <p class="text-sm text-gray-600">Captures the entire subject from head to toe.</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Long Shot (LS)</h5>
+                                <p class="text-sm text-gray-600">Shows the subject within their broader surroundings.</p>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Extreme Wide Shot (EWS)</h5>
+                                <p class="text-sm text-gray-600">Makes the subject look small in a vast environment.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                     <div>
+                        <h4 class="text-2xl font-semibold mb-4 text-center">Camera Angles</h4>
+                        <div class="card-grid">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Eye-Level Shot</h5>
+                                <p class="text-sm text-gray-600">A neutral, relatable perspective that mimics how we normally see.</p>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Low Angle Shot</h5>
+                                <p class="text-sm text-gray-600">Looks up at the subject, making them appear powerful or heroic.</p>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">High Angle Shot</h5>
+                                <p class="text-sm text-gray-600">Looks down on the subject, which can make them seem small or vulnerable.</p>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Bird's-Eye View</h5>
+                                <p class="text-sm text-gray-600">A direct overhead shot, great for showing layouts or patterns.</p>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Dutch Angle / Tilt</h5>
+                                <p class="text-sm text-gray-600">Tilts the horizon to create a sense of tension or unease.</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Over-the-Shoulder Shot</h5>
+                                <p class="text-sm text-gray-600">Frames a subject from behind another, creating intimacy in conversation.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-2xl font-semibold mb-4 text-center">Lens & Film Types</h4>
+                        <div class="card-grid">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Wide-Angle Lens (e.g., 24mm)</h5>
+                                <p class="text-sm text-gray-600">Expands the field of view. Great for landscapes and architecture.</p>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Telephoto Lens (e.g., 135mm)</h5>
+                                <p class="text-sm text-gray-600">Compresses perspective to isolate distant subjects. Ideal for portraits.</p>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Macro Lens</h5>
+                                <p class="text-sm text-gray-600">For extreme close-ups that reveal intricate, tiny details.</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Shallow Depth of Field (f/1.8)</h5>
+                                <p class="text-sm text-gray-600">Keeps the subject sharp while beautifully blurring the background (bokeh).</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Long Exposure</h5>
+                                <p class="text-sm text-gray-600">Blurs motion to create effects like silky water or light trails.</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h5 class="font-bold">Polaroid / Analog Film</h5>
+                                <p class="text-sm text-gray-600">Mimics the color shifts and vintage feel of traditional photography.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Styles Section -->
+            <section id="styles" class="content-section">
+                <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                    <h3 class="text-xl font-bold text-teal-700 mb-3">Exploring the Spectrum of Art Styles</h3>
+                    <p class="text-gray-700 leading-relaxed">Art styles are powerful directives that define the entire aesthetic of your image. You can reference mediums, art movements, or even specific artists to guide the AI. Combining styles can create unique, hybrid aesthetics. Use the filter to explore different categories of styles.</p>
+                </div>
+                <div class="card-grid" id="styles-grid">
+                    <!-- Cards will be populated by JS -->
+                </div>
+            </section>
+            
+            <!-- Materials Section -->
+            <section id="materials" class="content-section">
+                <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                    <h3 class="text-xl font-bold text-teal-700 mb-3">Integrating Materials and Textures</h3>
+                    <p class="text-gray-700 leading-relaxed">Adding material and texture keywords is crucial for realism and depth. These descriptors instruct the AI to render surfaces with specific tactile and visual qualities. You can even use abstract materials like "made of light" or "made of candy" for highly creative effects.</p>
+                </div>
+                 <div class="card-grid" id="materials-grid">
+                    <!-- Cards will be populated by JS -->
+                </div>
+            </section>
+
+            <!-- Advanced Section -->
+            <section id="advanced" class="content-section">
+                <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                    <h3 class="text-xl font-bold text-teal-700 mb-3">Advanced Prompting Techniques</h3>
+                    <p class="text-gray-700 leading-relaxed">Once you've mastered the basics, you can use advanced techniques for fine-grained control. Prompt weighting lets you emphasize or de-emphasize certain elements, while negative prompts allow you to explicitly remove unwanted features, styles, or artifacts from your image.</p>
+                </div>
+                 <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h4 class="text-lg font-semibold mb-2">Prompt Weighting</h4>
+                        <p class="text-gray-600 mb-4">Assign importance to words or phrases. The syntax varies by platform.</p>
+                        <div class="text-sm">
+                           <p><b>Midjourney:</b> <code class="bg-gray-100 p-1 rounded">blue sky::2</code></p>
+                           <p><b>Stable Diffusion:</b> <code class="bg-gray-100 p-1 rounded">(blue sky:1.5)</code></p>
+                        </div>
+                        <p class="text-gray-600 mt-2">A higher number increases the element's influence on the final image.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                         <h4 class="text-lg font-semibold mb-2">Negative Prompts</h4>
+                         <p class="text-gray-600 mb-4">Tell the AI what to exclude. This is essential for cleaning up images and removing common flaws.</p>
+                         <p class="text-sm text-gray-600"><b>Common Keywords:</b></p>
+                         <div class="text-sm flex flex-wrap gap-2 mt-2">
+                             <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full">blurry</span>
+                             <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full">bad anatomy</span>
+                             <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full">extra limbs</span>
+                              <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full">watermark</span>
+                             <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full">low quality</span>
+                         </div>
+                    </div>
+                 </div>
+            </section>
+
+            <!-- Prompt Lab Section -->
+            <section id="prompt-lab" class="content-section">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <h3 class="text-xl font-bold text-teal-700 mb-3">✨ Prompt Lab: Generate and Grade Your Prompts</h3>
+                        <p class="text-gray-700 leading-relaxed">Enter a simple idea below, and our AI-powered Prompt Engineer will transform it into a detailed, high-quality prompt. We'll then grade both your original idea and the generated prompt to show the improvement!</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <label for="userIdea" class="block text-gray-700 text-lg font-semibold mb-2">Your Original Idea:</label>
+                        <textarea id="userIdea" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200" rows="4" placeholder="e.g., A dog wearing a hat"></textarea>
+                        
+                        <div class="mt-4 mb-4">
+                            <h4 class="text-base font-semibold mb-2 text-gray-700">Optimize for Model:</h4>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" class="form-radio text-teal-600" name="aiModel" value="Stable Diffusion" checked>
+                                    <span class="ml-2 text-gray-700">Stable Diffusion</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" class="form-radio text-teal-600" name="aiModel" value="Midjourney">
+                                    <span class="ml-2 text-gray-700">Midjourney</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" class="form-radio text-teal-600" name="aiModel" value="Google">
+                                    <span class="ml-2 text-gray-700">Google Image Generation</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" class="form-radio text-teal-600" name="aiModel" value="ChatGPT">
+                                    <span class="ml-2 text-gray-700">ChatGPT Image Generation</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button id="generatePromptBtn" class="mt-4 w-full bg-teal-600 text-white py-3 px-6 rounded-md font-semibold hover:bg-teal-700 transition-colors duration-300 shadow-md">
+                            ✨ Generate & Grade Prompts
+                        </button>
+                        <div id="loadingIndicator" class="mt-4 text-center text-teal-600 hidden">
+                            Generating and Grading... Please wait.
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
+                            <h4 class="text-lg font-semibold mb-2 text-teal-700">Original Prompt Grade: <span id="originalPromptGrade" class="font-bold">N/A</span></h4>
+                            <p id="originalPromptAnalysis" class="text-gray-700 text-sm"></p>
+                        </div>
+
+                        <div class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
+                            <h4 class="text-lg font-semibold mb-2 text-teal-700">Generated Enhanced Prompt:</h4>
+                            <div id="generatedPromptOutput" class="bg-gray-100 p-3 rounded-md text-gray-800 whitespace-pre-wrap overflow-x-auto text-sm">
+                                Your enhanced prompt will appear here.
+                            </div>
+                            <h4 class="text-lg font-semibold mt-4 mb-2 text-teal-700">Generated Prompt Grade: <span id="generatedPromptGrade" class="font-bold">N/A</span></h4>
+                            <p id="generatedPromptAnalysis" class="text-gray-700 text-sm"></p>
+                        </div>
+                        <div id="gradeComparison" class="mt-4 p-4 bg-teal-50 border border-teal-200 rounded-md text-teal-800 font-semibold hidden"></div>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.tab-button');
+    const sections = document.querySelectorAll('.content-section');
+    const userIdeaInput = document.getElementById('userIdea');
+    const generatePromptBtn = document.getElementById('generatePromptBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const generatedPromptOutput = document.getElementById('generatedPromptOutput');
+    const originalPromptGrade = document.getElementById('originalPromptGrade');
+    const originalPromptAnalysis = document.getElementById('originalPromptAnalysis');
+    const generatedPromptGrade = document.getElementById('generatedPromptGrade');
+    const generatedPromptAnalysis = document.getElementById('generatedPromptAnalysis');
+    const gradeComparison = document.getElementById('gradeComparison');
+    const aiModelRadios = document.querySelectorAll('input[name="aiModel"]');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(item => item.classList.remove('tab-active'));
+            sections.forEach(section => section.classList.remove('content-active'));
+
+            tab.classList.add('tab-active');
+            document.getElementById(tab.dataset.tab).classList.add('content-active');
+        });
+    });
+
+    const stylesData = [
+        { title: 'Oil Painting', description: 'Visible brushstrokes, rich colors, and texture mimicking canvas.' },
+        { title: 'Watercolor', description: 'Translucent layers of paint with soft, fluid color blending.' },
+        { title: 'Pixel Art', description: 'Images created in a pixelated style, reminiscent of retro video games.' },
+        { title: 'Papercraft', description: 'Objects appear to be made from folded, layered, and glued paper.' },
+        { title: 'Cubism', description: 'Elements are broken into geometric shapes, showing multiple viewpoints at once.' },
+        { title: 'Pop Art', description: 'Inspired by popular culture, with bold, simple colors and high contrast.' },
+        { title: 'Surrealism', description: 'Imaginative, dream-like, and bizarre scenes that bend reality.' },
+        { title: 'Art Deco', description: 'Sleek, geometric, and stylized designs with rich colors and ornamentation.' },
+        { title: 'Cyberpunk', description: 'Dark, futuristic settings with neon lights and high-tech noir elements.' },
+        { title: 'Photorealistic', description: 'Images that look like real-life photographs with high-fidelity rendering.' },
+        { title: 'Cinematic', description: 'Dramatic lighting, wide aspect ratios, and an evocative, film-like aesthetic.' },
+        { title: 'Minimalism', description: 'Extreme simplicity with clean lines, limited colors, and uncluttered design.' },
+    ];
+    
+    const materialsData = [
+        { title: 'Metallic', description: 'Shiny, reflective surfaces for a futuristic or industrial feel.' },
+        { title: 'Wood', description: 'Natural, organic texture with visible grain patterns.' },
+        { title: 'Fur', description: 'Adds a soft, plush, and luxurious feel to subjects.' },
+        { title: 'Leather', description: 'A smooth, durable, and often rich-looking surface.' },
+        { title: 'Velvet', description: 'Creates a soft, luxurious surface with a deep color and slight sheen.' },
+        { title: 'Glass', description: 'Renders transparent or translucent, reflective surfaces.' },
+        { title: 'Made of Light', description: 'Makes the subject appear as a glowing, ethereal object.' },
+        { title: 'Made of Candy', description: 'Generates fun, cheerful, and brightly colored whimsical elements.' },
+        { title: 'Cracked Ice', description: 'A fractured, crystalline appearance for a dramatic or cold aesthetic.' },
+    ];
+
+    function createCard(item) {
+        return `
+            <div class="bg-white p-4 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
+                <h5 class="font-bold text-teal-700">${item.title}</h5>
+                <p class="text-sm text-gray-600">${item.description}</p>
+            </div>
+        `;
+    }
+
+    const stylesGrid = document.getElementById('styles-grid');
+    if (stylesGrid) {
+        stylesGrid.innerHTML = stylesData.map(createCard).join('');
+    }
+
+    const materialsGrid = document.getElementById('materials-grid');
+    if (materialsGrid) {
+        materialsGrid.innerHTML = materialsData.map(createCard).join('');
+    }
+
+    const ctx = document.getElementById('promptBalanceChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Clarity', 'Specificity', 'Composition', 'Lighting', 'Style', 'Mood'],
+                datasets: [{
+                    label: 'Ideal Prompt',
+                    data: [9, 8, 7, 8, 7, 9],
+                    fill: true,
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)', // teal-600 with opacity
+                    borderColor: 'rgb(13, 148, 136)',
+                    pointBackgroundColor: 'rgb(13, 148, 136)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(13, 148, 136)'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0,0,0,0.1)' },
+                        grid: { color: 'rgba(0,0,0,0.1)' },
+                        pointLabels: { font: { size: 14 } },
+                        suggestedMin: 0,
+                        suggestedMax: 10
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    }
+
+    async function gradePrompt(promptToGrade) {
+        if (!promptToGrade) return { grade: 'N/A', analysis: 'No prompt provided to grade.' };
+
+        let chatHistory = [];
+        const gradingPrompt = `You are an expert AI image prompt grader. Your task is to evaluate a given image generation prompt based on its effectiveness, detail, and adherence to best practices in prompt engineering as taught in the guide.
+
+Consider the following criteria:
+1.  **Clarity & Specificity:** Is the subject well-defined? Are key elements specific? (e.g., instead of "tree," "ancient gnarled oak tree with shimmering autumn leaves").
+2.  **Compositional Elements:** Does it specify camera shots (e.g., "close-up", "wide shot"), camera angles (e.g., "low angle", "bird's-eye view"), lens types (e.g., "wide-angle lens", "shallow depth of field")?
+3.  **Art Style & Aesthetics:** Does it clearly define an art style (e.g., "oil painting", "cyberpunk", "photorealistic") or other aesthetic qualities?
+4.  **Environmental & Lighting Details:** Are the setting, time of day, weather, and lighting conditions (e.g., "golden hour," "dramatic backlight") well-described?
+5.  **Material & Texture Details:** Are specific materials or textures mentioned (e.g., "metallic," "wooden," "velvet")?
+6.  **Overall Richness & Detail:** Is the prompt rich in descriptive detail without being overly verbose or contradictory?
+
+Rate the prompt on a scale of 0 to 10 for its overall quality.
+Then, provide a brief, concise analysis (2-3 sentences) explaining the reasoning for the grade, highlighting strengths and weaknesses.
+
+Respond in JSON format with the following schema:
+{
+  "grade": <integer between 0 and 10>,
+  "analysis": "<string>"
+}
+
+Here is the prompt to grade:
+"${promptToGrade}"`;
+
+        chatHistory.push({ role: "user", parts: [{ text: gradingPrompt }] });
+        const payload = { 
+            contents: chatHistory,
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: "OBJECT",
+                    properties: {
+                        "grade": { "type": "INTEGER" },
+                        "analysis": { "type": "STRING" }
+                    },
+                    "propertyOrdering": ["grade", "analysis"]
+                }
+            }
+        };
+        const apiKey = ""; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const jsonText = result.candidates[0].content.parts[0].text;
+                return JSON.parse(jsonText);
+            } else {
+                console.error('Failed to parse grading response:', result);
+                return { grade: 'Error', analysis: 'Could not grade prompt.' };
+            }
+        } catch (error) {
+            console.error('Error calling Gemini API for grading:', error);
+            return { grade: 'Error', analysis: 'API call failed for grading.' };
+        }
+    }
+
+    generatePromptBtn.addEventListener('click', async () => {
+        const userIdea = userIdeaInput.value.trim();
+        if (!userIdea) {
+            generatedPromptOutput.textContent = 'Please enter an idea to generate a prompt.';
+            originalPromptGrade.textContent = 'N/A';
+            originalPromptAnalysis.textContent = '';
+            generatedPromptGrade.textContent = 'N/A';
+            generatedPromptAnalysis.textContent = '';
+            gradeComparison.classList.add('hidden');
+            return;
+        }
+
+        loadingIndicator.classList.remove('hidden');
+        generatedPromptOutput.textContent = ''; // Clear previous output
+        originalPromptGrade.textContent = 'Grading...';
+        originalPromptAnalysis.textContent = '';
+        generatedPromptGrade.textContent = 'Waiting for generation...';
+        generatedPromptAnalysis.textContent = '';
+        gradeComparison.classList.add('hidden');
+
+        // Step 1: Grade the original user idea
+        const originalGradeResult = await gradePrompt(userIdea);
+        originalPromptGrade.textContent = `${originalGradeResult.grade}/10`;
+        originalPromptAnalysis.textContent = originalGradeResult.analysis;
+
+        // Get selected AI Model
+        let selectedModel = '';
+        for (const radio of aiModelRadios) {
+            if (radio.checked) {
+                selectedModel = radio.value;
+                break;
+            }
+        }
+
+        // Step 2: Generate the enhanced prompt
+        let chatHistory = [];
+        const promptForGeneration = `You are an expert AI image prompt engineer. Your task is to expand a simple idea into a detailed, high-quality prompt for an image generation model. Optimize this prompt specifically for **${selectedModel}**. Incorporate elements such as:
+- Subject description (detailed, including actions/emotions if relevant)
+- Environment/Setting (location, time of day, weather, background elements)
+- Lighting (quality, source, direction, mood e.g., warm golden hour light, dramatic cinematic lighting)
+- Camera Shot Type (e.g., Extreme Close-Up, Close-Up, Medium Shot, Full Shot, Long Shot, Extreme Wide Shot)
+- Camera Angle (e.g., Eye-Level Shot, Low Angle Shot, High Angle Shot, Bird's-Eye View, Dutch Angle)
+- Lens Type/Effects (e.g., Wide-Angle Lens, Telephoto Lens, Macro Lens, Shallow Depth of Field, Long Exposure, Bokeh)
+- Art Style (e.g., photorealistic, oil painting, watercolor, cyberpunk, cinematic, pop art, surrealism)
+- Materials/Textures (e.g., metallic, wood, fur, glass, velvet, made of light, cracked ice)
+- Compositional elements (e.g., rule of thirds, symmetrical composition, golden ratio)
+
+Expand the following idea into a comprehensive image prompt, ensuring it is concise but highly descriptive, like a professional prompt: "${userIdea}"`;
+
+        chatHistory.push({ role: "user", parts: [{ text: promptForGeneration }] });
+        const payloadGeneration = { contents: chatHistory };
+        const apiKey = ""; 
+        const apiUrlGeneration = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        
+        let generatedText = '';
+        try {
+            const responseGeneration = await fetch(apiUrlGeneration, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payloadGeneration)
+            });
+            const resultGeneration = await responseGeneration.json();
+            if (resultGeneration.candidates && resultGeneration.candidates.length > 0 &&
+                resultGeneration.candidates[0].content && resultGeneration.candidates[0].content.parts &&
+                resultGeneration.candidates[0].content.parts.length > 0) {
+                generatedText = resultGeneration.candidates[0].content.parts[0].text;
+                generatedPromptOutput.textContent = generatedText;
+            } else {
+                generatedPromptOutput.textContent = 'Failed to generate prompt. Please try again.';
+            }
+        } catch (error) {
+            console.error('Error calling Gemini API for generation:', error);
+            generatedPromptOutput.textContent = 'An error occurred while generating the prompt.';
+        } finally {
+            // Step 3: Grade the newly generated prompt
+            if (generatedText) {
+                const generatedGradeResult = await gradePrompt(generatedText);
+                generatedPromptGrade.textContent = `${generatedGradeResult.grade}/10`;
+                generatedPromptAnalysis.textContent = generatedGradeResult.analysis;
+
+                // Compare grades
+                if (typeof originalGradeResult.grade === 'number' && typeof generatedGradeResult.grade === 'number') {
+                    const improvement = generatedGradeResult.grade - originalGradeResult.grade;
+                    gradeComparison.classList.remove('hidden');
+                    if (improvement > 0) {
+                        gradeComparison.textContent = `🎉 Great improvement! Your prompt quality increased by ${improvement} points.`;
+                    } else if (improvement < 0) {
+                        gradeComparison.textContent = `Consider refining. Your prompt quality decreased by ${Math.abs(improvement)} points.`;
+                    } else {
+                        gradeComparison.textContent = `No change in prompt quality.`;
+                    }
+                }
+            } else {
+                generatedPromptGrade.textContent = 'N/A';
+                generatedPromptAnalysis.textContent = 'Prompt generation failed, cannot grade.';
+            }
+            loadingIndicator.classList.add('hidden');
+        }
+    });
+});
+</script>
+
+</body>
+</html>
